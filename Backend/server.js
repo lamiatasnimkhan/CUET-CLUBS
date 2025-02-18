@@ -20,7 +20,7 @@ app.use("/api/workshops",require("./routes/workshopRoutes"));
 app.use("/api/admin", require("./routes/websiteAdminRoute")); // Add admin routes here
 app.use("/api/temp-clubs", require("./routes/tempClubRoutes"));
 app.use("/api/committee", require("./routes/committeeRoutes"));
-// app.use("/api/users",require("./routes/userRoutes"));
+app.use("/api/users",require("./routes/clubMemberRoutes"));
 
 
 

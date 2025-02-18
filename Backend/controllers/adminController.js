@@ -2,6 +2,8 @@ const asyncHanlder = require("express-async-handler");
 const Club = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const User = require("../models/clubMemberModel");
+const { getPackedSettings } = require("http2");
 
 //@desc register User
 //@route POST /api/users
@@ -121,8 +123,17 @@ const editClubByAdmin = asyncHanlder(async (req, res) => {
     res.status(200).json(club);
 });
 
+const getApprovedUsers = asyncHanlder(async (req, res) => {
+    const users = await User.find({ approved: true });
+    res.status(200).json(users);
+});
 
+// Get all pending users (approve: false)
+const getPendingUsers = asyncHanlder(async (req, res) => {
+    const users = await User.find({ approved: false });
+    res.status(200).json(users);
+});
 
 module.exports = {
-    registerClub, loginClub, getClub, getClubs, editClubByAdmin
+    registerClub, loginClub, getClub, getClubs, editClubByAdmin,getApprovedUsers, getPendingUsers
 }

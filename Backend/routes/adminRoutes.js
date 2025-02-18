@@ -5,7 +5,9 @@ const {
     loginClub,
     getClub,
     getClubs,
-    editClubByAdmin
+    editClubByAdmin,
+    getApprovedUsers,
+    getPendingUsers
 }=require("../controllers/adminController");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -15,5 +17,7 @@ router.get("/club/:id",getClub);
 
 router.put("/edit/:id",validateToken,editClubByAdmin); 
 router.get("",getClubs);
+router.get("/approvedusers",validateToken,getApprovedUsers);
+router.get("/pendingusers",validateToken,getPendingUsers);
 
 module.exports=router;

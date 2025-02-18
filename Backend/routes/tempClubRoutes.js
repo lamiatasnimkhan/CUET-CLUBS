@@ -6,7 +6,7 @@ const validateToken = require("../middleware/validateTokenHandler");
 const router = express.Router();
 
 // Route for registering a new temp club with file upload
-router.post('/signup', upload.single('file'), signupTempClub);
+router.post('/signup', signupTempClub);
 
 // Route for approving a temp club
 router.post('/approve/:id', approveClub);

@@ -38,7 +38,7 @@ const approveClub = asyncHandler(async (req, res) => {
 const signupTempClub = asyncHandler(async (req, res) => {
 
     const { clubname, email, password, about, phone_number, mailing_address } = req.body;
-    const file = req.file; // This is the uploaded file
+    //const file = req.file; // This is the uploaded file
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -47,7 +47,6 @@ const signupTempClub = asyncHandler(async (req, res) => {
         email,
         password:hashedPassword,
         about,
-        file: file ? file.path : null, // Save the file path
         phone_number,
         mailing_address
     });

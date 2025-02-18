@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 
-export default function AdminLogin() {
+export default function WebsiteAdminLogin() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -15,7 +15,7 @@ export default function AdminLogin() {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:4000/api/clubs/login', {
+      const response = await fetch('http://localhost:4000/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -24,9 +24,9 @@ export default function AdminLogin() {
       const data = await response.json();
       
       if (response.ok) {
-        localStorage.setItem('selectedClubId', data._id);
+        // localStorage.setItem('selectedClubId', data._id);
         localStorage.setItem('accessToken', data.accessToken);
-        navigate('/admin/dashboard');
+        navigate('/websiteadmin');
       } else {
         setError(data.message || 'Invalid email or password');
       }
@@ -40,15 +40,10 @@ export default function AdminLogin() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="flex justify-center">
-            <Lock className="h-12 w-12 text-teal-600" />
-          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Admin Login
+            Website Admin Login
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Access your club's dashboard
-          </p>
+          
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

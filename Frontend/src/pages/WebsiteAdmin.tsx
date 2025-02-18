@@ -1,32 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Shield } from 'lucide-react';
 
 export default function WebsiteAdmin() {
-  const [pendingClubs, setPendingClubs] = useState([
-    // {
-    //   id: 1,
-    //   name: 'IEEE CUET Student Branch',
-    //   description: 'Professional development and technical excellence',
-    //   president: 'Rafsan Bin Ali Usha',
-    //   advisor: 'Dr. Moshiul Haque',
-    //   status: 'Accepted'
-    // },
-    {
-      id: 1,
-      name: 'CUET Computer Club',
-      description: 'Professional development and technical excellence',
-      president: 'MD. Shafiqul Hasan Saymon',
-      advisor: 'Dr. Kowshik Deb',
-      status: 'pending'
-    }
-  ]);
+  const [pendingClubs, setPendingClubs] = useState([]);
+  const accessToken = localStorage.getItem('accessToken');
 
-  const handleApprove = (id: number) => {
-    setPendingClubs(clubs => clubs.filter(club => club.id !== id));
+  useEffect(() => {
+    fetchTempClubs();
+  }, []);
+
+  const fetchTempClubs = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/temp-clubs/', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      setPendingClubs(data);
+    } catch (error) {
+      console.error('Error fetching temporary clubs:', error);
+    }
   };
 
-  const handleReject = (id: number) => {
-    setPendingClubs(clubs => clubs.filter(club => club.id !== id));
+  const handleApprove = async (id) => {
+    try {
+      await fetch(`http://localhost:4000/api/temp-clubs/approve/${id}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      setPendingClubs(clubs => clubs.filter(club => club._id !== id));
+    } catch (error) {
+      console.error('Error approving club:', error);
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await fetch(`http://localhost:4000/api/temp-clubs/delete/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      setPendingClubs(clubs => clubs.filter(club => club._id !== id));
+    } catch (error) {
+      console.error('Error deleting club:', error);
+    }
   };
 
   return (
@@ -41,78 +57,32 @@ export default function WebsiteAdmin() {
           </div>
 
           <div className="p-6">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Pending Club Registrations</h2>
-                <div className="bg-white rounded-lg border border-gray-200 divide-y">
-                  {pendingClubs.length === 0 ? (
-                    <div className="p-4 text-gray-500">No pending registrations</div>
-                  ) : (
-                    pendingClubs.map(club => (
-                      <div key={club.id} className="p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">{club.name}</h3>
-                            <p className="mt-1 text-gray-600">{club.description}</p>
-                            <div className="mt-2 text-sm text-gray-500">
-                              <p>President: {club.president}</p>
-                              <p>Advisor: {club.advisor}</p>
-                            </div>
-                          </div>
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => handleApprove(club.id)}
-                              className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => handleReject(club.id)}
-                              className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        </div>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Pending Club Registrations</h2>
+            <div className="bg-white rounded-lg border border-gray-200 divide-y">
+              {pendingClubs.length === 0 ? (
+                <div className="p-4 text-gray-500">No pending registrations</div>
+              ) : (
+                pendingClubs.map(club => (
+                  <div key={club._id} className="p-4 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">{club.clubname || 'N/A'}</h3>
+                      <p className="mt-1 text-gray-600">{club.about || 'No description available'}</p>
+                      <div className="mt-2 text-sm text-gray-500">
+                        <p><strong>Email:</strong> {club.email || 'N/A'}</p>
+                        <p><strong>Phone:</strong> {club.phone || 'N/A'}</p>
                       </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Website Settings</h2>
-                <form className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Website Title
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue="CUET Clubs"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
+                    </div>
+                    <div className="flex space-x-3">
+                      <button onClick={() => handleApprove(club._id)} className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700">
+                        Approve
+                      </button>
+                      <button onClick={() => handleReject(club._id)} className="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50">
+                        Reject
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Welcome Message
-                    </label>
-                    <textarea
-                      rows={4}
-                      defaultValue="Welcome to CUET Clubs - Your gateway to student activities and professional development."
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                    />
-                  </div>
-                  <div>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </form>
-              </div>
+                ))
+              )}
             </div>
           </div>
         </div>

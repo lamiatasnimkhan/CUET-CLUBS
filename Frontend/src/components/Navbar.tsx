@@ -27,7 +27,7 @@ export default function Navbar() {
                 <Link to="/admin/login" className="hover:text-teal-200" id='admin Login'>
                   Admin Login
                 </Link>
-                <Link to="/Website" className="hover:text-teal-200" id="website admin login">
+                <Link to="/website-admin/login" className="hover:text-teal-200">
                   Website Admin Login
                 </Link>
               </>

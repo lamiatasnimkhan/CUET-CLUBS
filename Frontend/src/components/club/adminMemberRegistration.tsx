@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 interface User {
   _id: string;
   name: string;
   email: string;
-  // Add other fields if needed
+  transactionId: string; // Added transactionId
 }
 
 const ManageUsers: React.FC = () => {
@@ -38,15 +42,13 @@ const ManageUsers: React.FC = () => {
     }
   };
 
-  // Call fetchUsers on component mount to load the users initially
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Handle approving a pending user
   const handleApproveUser = async (userId: string) => {
     try {
-      console.log('Approving user:', userId); // Debug log
+      console.log('Approving user:', userId);
       const response = await fetch(`http://localhost:4000/api/users/approve/${userId}`, {
         method: 'PUT',
         headers: {
@@ -54,24 +56,38 @@ const ManageUsers: React.FC = () => {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
       });
-
       if (!response.ok) throw new Error('Failed to approve user');
       const data = await response.json();
-      console.log('User approved:', data); // Debug log
-
-      // Re-fetch users after approval to update the UI
-      fetchUsers(); // Re-fetch both pending and approved users
+      console.log('User approved:', data);
+      fetchUsers();
     } catch (err) {
       console.error('Error approving user:', err);
       setError('Error approving user');
     }
   };
 
+  const chartData = {
+    labels: ['Approved Users', 'Pending Users'],
+    datasets: [
+      {
+        label: 'Total Users',
+        data: [approvedUsers.length, pendingUsers.length],
+        backgroundColor: ['#4CAF50', '#FFC107'],
+      },
+    ],
+  };
+
   return (
     <div className="p-6 space-y-6">
       <h2 className="text-2xl font-semibold">Manage Users</h2>
-
       {error && <p className="text-red-500">{error}</p>}
+
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold">User Status</h3>
+        <div className="w-full max-w-md mx-auto">
+          <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+        </div>
+      </div>
 
       <div className="space-y-4">
         <h3 className="text-xl font-semibold">Approved Users</h3>
@@ -80,6 +96,7 @@ const ManageUsers: React.FC = () => {
             <div key={user._id} className="bg-white rounded-lg shadow p-6 text-center">
               <h4 className="text-lg font-semibold">{user.name}</h4>
               <p className="text-gray-600">{user.email}</p>
+              <p className="text-gray-500">Transaction ID: {user.transactionId}</p>
             </div>
           ))}
         </div>
@@ -92,9 +109,10 @@ const ManageUsers: React.FC = () => {
             <div key={user._id} className="bg-white rounded-lg shadow p-6 text-center">
               <h4 className="text-lg font-semibold">{user.name}</h4>
               <p className="text-gray-600">{user.email}</p>
+              <p className="text-gray-500">Transaction ID: {user.transactionId}</p>
               <button
                 className="bg-teal-600 text-white p-2 rounded mt-4"
-                onClick={() => handleApproveUser(user._id)} // Use the _id here
+                onClick={() => handleApproveUser(user._id)}
               >
                 Approve
               </button>

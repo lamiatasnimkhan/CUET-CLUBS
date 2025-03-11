@@ -9,16 +9,19 @@ export default function Home() {
   useEffect(() => {
     const fetchClubs = async () => {
       try {
+        console.log("Fetching clubs...");
         const response = await fetch("http://localhost:4000/api/clubs");
         if (!response.ok) {
           throw new Error("Failed to fetch clubs");
         }
         const data = await response.json();
-        setClubs(data); // Now using the correct response format
+        console.log("Received clubs data:", data);
+        setClubs(data); 
       } catch (error) {
         console.error("Error fetching clubs:", error);
       } finally {
         setLoading(false);
+        console.log("Loading state set to false");
       }
     };
 
@@ -54,7 +57,10 @@ export default function Home() {
         <Link
           to={`/club/${club._id}`}
           className="text-teal-600 hover:text-teal-700"
-          onClick={() => localStorage.setItem("selectedClubId", club._id)}
+          onClick={() => {
+            console.log("Saving club ID to localStorage:", club._id);
+            localStorage.setItem("selectedClubId", club._id);
+          }}
         >
           Learn More →
         </Link>
@@ -62,7 +68,6 @@ export default function Home() {
     ))
   )}
 </div>
-
 
       {/* Features Section */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">

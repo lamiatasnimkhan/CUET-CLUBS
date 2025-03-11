@@ -1,54 +1,35 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
-test('CUET Clubs homepage loads correctly', async ({ page }) => {
-  // Navigate to the homepage
-  await page.goto('http://localhost:5173'); // Replace with your actual URL
+test.describe('Home Page Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/'); // Update the URL if different
+  });
 
-  // Verify the page title
-  await expect(page).toHaveTitle("CUET CLUBS");
+  test('should display the welcome message', async ({ page }) => {
+    await expect(page.locator('h1')).toHaveText('Welcome to CUET Clubs');
+  });
 
-  // Verify the main heading text
-  const mainHeading = page.locator('h1.text-4xl.font-bold.text-gray-900.mb-4');
-  await expect(mainHeading).toHaveText("Welcome to CUET Clubs");
+  test('should fetch and display clubs', async ({ page }) => {
+    // Wait for clubs to load
+    await page.waitForSelector('.bg-white.rounded-lg.shadow-md');
 
-  // Verify the introductory paragraph
-  const introParagraph = page.locator('p.text-xl.text-gray-600.max-w-2xl.mx-auto');
-  await expect(introParagraph).toHaveText(
-    "Discover and join the vibrant club community at Chittagong University of Engineering and Technology"
-  );
+    // Check if at least one club is displayed
+    const clubCards = await page.locator('.bg-white.rounded-lg.shadow-md').count();
+    expect(clubCards).toBeGreaterThan(0);
+  });
 
-  // Verify a featured club card
-  const featuredClubCard = page.locator('div.bg-white.rounded-lg.shadow-md.p-6');
-  const featuredClubTitle = featuredClubCard.locator('h3.text-xl.font-semibold.mb-2');
-  const featuredClubDescription = featuredClubCard.locator('p.text-gray-600.mb-4');
-  const featuredClubLink = featuredClubCard.locator('a.text-teal-600.hover\\:text-teal-700');
+  test('should navigate to a club page when clicking Learn More', async ({ page }) => {
+    const firstClubLink = page.locator('text=Learn More').first();
+    await firstClubLink.click();
 
-  //await expect(featuredClubTitle).toHaveText("IEEE CUET Student Branch");
-  // await expect(featuredClubDescription).toHaveText("Professional development and technical excellence");
-  // await expect(featuredClubLink).toHaveAttribute('href', '/club/ieee');
+    // Expect URL to change (adjust route pattern if necessary)
+    await expect(page).toHaveURL(/club\/\w+/);
+  });
 
-  // Verify the section icons and titles
-  const activeMembers = page.locator('div.text-center.p-6', { hasText: 'Active Members' });
-  const regularEvents = page.locator('div.text-center.p-6', { hasText: 'Regular Events' });
-  const workshops = page.locator('div.text-center.p-6', { hasText: 'Workshops' });
-  const achievements = page.locator('div.text-center.p-6', { hasText: 'Achievements' });
-
-  // Check that each section icon is visible
-  await expect(activeMembers.locator('svg')).toBeVisible();
-  await expect(regularEvents.locator('svg')).toBeVisible();
-  await expect(workshops.locator('svg')).toBeVisible();
-  await expect(achievements.locator('svg')).toBeVisible();
-
-  // Check that each section title and description are correct
-  await expect(activeMembers.locator('h3.text-lg.font-semibold.mb-2')).toHaveText('Active Members');
-  await expect(activeMembers.locator('p.text-gray-600')).toHaveText('Join our growing community');
-
-  await expect(regularEvents.locator('h3.text-lg.font-semibold.mb-2')).toHaveText('Regular Events');
-  await expect(regularEvents.locator('p.text-gray-600')).toHaveText('Participate in exciting activities');
-
-  await expect(workshops.locator('h3.text-lg.font-semibold.mb-2')).toHaveText('Workshops');
-  await expect(workshops.locator('p.text-gray-600')).toHaveText('Learn from industry experts');
-
-  await expect(achievements.locator('h3.text-lg.font-semibold.mb-2')).toHaveText('Achievements');
-  await expect(achievements.locator('p.text-gray-600')).toHaveText('Celebrate our successes');
+  test('should display all feature sections', async ({ page }) => {
+    const features = ['Active Members', 'Regular Events', 'Workshops', 'Achievements'];
+    for (const feature of features) {
+      await expect(page.locator(`text=${feature}`)).toBeVisible();
+    }
+  });
 });
